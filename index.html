@@ -15,13 +15,69 @@
         <div class="container">
             <div class="row">
               <div class="col">
-                <h3 class="fa-solid fa-circle-info text-left text-light mt-3"></h3>
+                
+                <!-- Button trigger modal -->
+                <button type="button" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#infoModal">
+                  <h3 class="fa-solid fa-circle-info text-left text-light mt-3"></h3>
+                </button>
+
+                <!-- Modal -->
+                <div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content text-bg-dark">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Information</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body">
+                        <p>Each day, you can guess the Bollywood song from a short clip. Try and guess in as few tries as possible, and share your results with your friends to see who knows Bollywood music best. Songs range from Bollywood movies released between 2001-2022.</p>
+                        <br>
+                        <p>This game was created by <a href="https://www.linkedin.com/in/jasmohan-bawa/">Jas Bawa</a> as a fun side project. If you find any issues with the game, or have any suggestions, please reach out to <a href="mailto:bollydle@bawa.io">bollydle@bawa.io</a></p>
+                        <br>
+                        <p>Bollydle is inspired by <a href="http://heardle.app">Heardle</a>, but is not affiliated with Heardle, Spotify, or SoundCloud. All music rights to their respective owners.</p>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+
               </div>
               <div class="col">
                 <h1 class="text-center text-light mt-2">Bollydle</h1>
               </div>
               <div class="col text-end">
-                <h3 class="fa-solid fa-circle-question text-light text-end mt-3"></h3>
+                <!-- Button trigger modal -->
+                <button type="button" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#helpModal">
+                  <h3 class="fa-solid fa-circle-question text-light text-end mt-3"></h3>
+                </button>
+
+                <!-- Modal -->
+                <div class="modal fade" id="helpModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content text-bg-dark">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">How to Play</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body">
+                        <ol class="text-start">
+                          <li>Listen to the intro for today's song</li>
+                          <li>Take a guess by searching for the title and/or artist, or skip your turn</li>
+                          <li>Incorrect attempts and skipped turns will unlock more of the intro</li>
+                          <li>Answer in as few tries as possible and share your score to see who the Bollywood master is</li>
+                          <li>Come back tomorrow for the next song (new round unlocked at midnight local time)</li>
+                        </ol>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
               </div>
             </div>
           </div>
@@ -63,7 +119,7 @@
         </div>
       
         <!-- Bottom Portion -->
-        <div class="fixed-bottom  mx-2">
+        <div class="fixed-bottom  mx-2 bg-dark">
 
             <hr class="text-light">
             <div class="container">

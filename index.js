@@ -118,6 +118,11 @@ function skipGuess(){
         selectedSong = ""
         maxPos = songLimits[guessNum] * 1000
         document.getElementById("progress_max").innerHTML = songLimits[guessNum]
+        if(guessNum < 5){
+            document.getElementById("skipButton").innerText = "Skip (+" + (songLimits[guessNum+1] - songLimits[guessNum]) + "s)"
+        }else{
+            document.getElementById("skipButton").innerText = "Give Up"
+        }
     }
 }
 
@@ -138,6 +143,11 @@ function guessSong(){
             selectedSong = ""
             maxPos = songLimits[guessNum] * 1000
             document.getElementById("progress_max").innerHTML = songLimits[guessNum]
+            if(guessNum < 5){
+                document.getElementById("skipButton").innerText = "Skip (+" + (songLimits[guessNum+1] - songLimits[guessNum]) + "s)"
+            }else{
+                document.getElementById("skipButton").innerText = "Give Up"
+            }
         }
     }
 }
