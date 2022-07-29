@@ -3,6 +3,7 @@ var currentPos = 0;
 var maxPos = 2000;
 var isDone = false;
 var isPaused = true;
+var guessStats = [0, 0, 0, 0, 0, 0, 0]
 document.getElementById("progress_max").textContent = maxPos/1000
 
 
@@ -112,7 +113,7 @@ function skipGuess(){
     guessNum++
     if(guessNum == 6){
         setGuess("", 0)
-        endOfGame(0)
+        // endOfGame(0)
     }else{
         setGuess("Skipped", -1)
         guessBox = document.getElementById("guess" + guessNum)
@@ -134,7 +135,7 @@ function guessSong(){
     if(songs[offset].title == selectedSong){
         // Right Answer
         setGuess("", 1)
-        endOfGame(1)
+        // endOfGame(1)
     }else{
         // Wrong Answer
         if(guessNum == 6){
@@ -160,19 +161,41 @@ function guessSong(){
 // 0 -> Lost 1-> Win
 function endOfGame(status){
     var message = ""
-    switch(status){
-        case 0:
-            message = "Ah, so close! Try again tomorrow!"
-            break;
-        case 1:
-            message = "Nice job! Can you do it again tomorrow??"
-            break;
+    if(isDone){
+        ls.setItem("lead-played", parseInt(ls.getItem("lead-played")) + 1)
     }
+    if(status == 0){
+        message = "Ah, so close! Try again tomorrow!"
+        if(isDone){
+            ls.setItem("lead-streak", 0)
+            guessStats[6]++
+        }
+    }else if(status == 1){
+        if(isDone){
+            let streak = parseInt(ls.getItem("lead-streak")) + 1
+            ls.setItem("lead-streak", streak)
 
+            if(streak > parseInt(ls.getItem("lead-maxStreak"))){
+                ls.setItem("lead-maxStreak", streak)
+            }
+
+            ls.setItem("lead-correct", parseInt(ls.getItem("lead-correct")) + 1)
+
+            guessStats[guessNum-1]++
+        }
+        message = "Nice job! Can you do it again tomorrow??"
+    }
+    
+    if(isDone){
+        ls.setItem("lead-guessStats", JSON.stringify(guessStats))
+    }
+    updateStats()
     document.getElementById("top").innerHTML = `
         <h2 class="text-light text-center">${message}</h2>
         <br>
         <br>
+        <h2 class="text-light text-center">Today's Song:</h2>
+        <h2 class="text-light text-center">${songs[offset].title}</h2>
         <iframe class="fixed-bottom" name="130" id="soundcloudPlayer" allow="autoplay" width = "100%" height="200px" src="https://w.soundcloud.com/player/?url=${songs[offset].url}&amp;show_teaser=false&amp;cache=130&amp;auto_play=true&amp;buying=false&amp;sharing=false&amp;download=false&amp;show_playcount=false&amp;show_user=false&amp;"></iframe>
     `;
 }
@@ -186,6 +209,7 @@ function setGuess(song, status){
 
     if(status == 0 || status == 1){
         ls.setItem("isDone", status)
+        isDone = true
         endOfGame(status)
     }else if(guessNum < 6){
         
@@ -199,6 +223,7 @@ function setGuess(song, status){
 
 }
 
+// Local Storage setup upon page load
 if((ls.getItem("currentSong") != null) && (ls.getItem("currentSong") === songs[offset].title)){
 
     if((ls.getItem("isDone") === "0") || (ls.getItem("isDone") === "1")){
@@ -238,4 +263,68 @@ function updateGuesses(guesses, num){
             guessBox.innerHTML = '<span><i class="fa-solid fa-x text-danger"></i><span class="text-light"> ' + song + '<span></span>'
         }
     }
+}
+
+// Leaderboard Setup upon page load
+// console.log(ls.getItem("lead-played"))
+if(ls.getItem("lead-played") === null){
+    console.log(ls.getItem("lead-played"))
+    ls.setItem("lead-played", 0)
+    ls.setItem("lead-streak", 0)
+    ls.setItem("lead-maxStreak", 0)
+    ls.setItem("lead-correct", 0)
+    ls.setItem("lead-guessStats", JSON.stringify(guessStats))
+}else{
+    updateStats()
+}
+createChart()
+
+
+function updateStats(){
+    document.getElementById("playedStat").innerHTML= ls.getItem("lead-played")
+    console.log("Updating!")
+    let percent = ((parseInt(ls.getItem("lead-correct")) / parseInt(ls.getItem("lead-played"))) * 100).toFixed(1)
+    document.getElementById("percentStat").innerHTML = (percent + "%")
+    document.getElementById("streakStat").innerHTML = ls.getItem("lead-streak")
+    document.getElementById("maxStat").innerHTML = ls.getItem("lead-maxStreak")
+    guessStats = JSON.parse(ls.getItem("lead-guessStats"))
+    createChart()
+}
+
+function createChart(){
+    var xValues = ["1", "2", "3", "4", "5", "6", "X"];
+    var yValues = guessStats;
+    var barColors = ["green", "green","green","green","green", "green", "red"];
+
+    new Chart("myChart", {
+        base: 0,
+        type: "bar",
+        data: {
+            labels: xValues,
+            datasets: [{
+            backgroundColor: barColors,
+            data: yValues
+            }]
+        },
+        options: {
+            legend: {display: false},
+            title: {
+            display: true,
+            text: "All Time Guess Distribution"
+            },
+            base: 0,
+            scales: {
+                yAxes: [{
+                    display: true,
+                    ticks: {
+                        suggestedMin: 0,    // minimum will be 0, unless there is a lower value.
+                        // OR //
+                        beginAtZero: true,   // minimum value will be 0.
+                        stepSize: 1,
+                        suggestedMax: 1
+                    }
+                }]
+            }
+        }
+    });
 }
