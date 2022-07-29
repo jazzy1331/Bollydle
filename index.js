@@ -37,6 +37,7 @@ function playSong(){
         isDone = false
         isPaused = false
     }
+    
     document.getElementById("playPauseDiv").innerHTML = '<h1 class="fa-solid fa-pause text-light" onclick="pauseSong()"></h1>'
 }
 
@@ -110,8 +111,10 @@ function skipGuess(){
 
     guessNum++
     if(guessNum == 6){
+        setGuess("", 0)
         endOfGame(0)
     }else{
+        setGuess("Skipped", -1)
         guessBox = document.getElementById("guess" + guessNum)
         guessBox.innerHTML = '<span><i class="fa-solid fa-minus text-secondary"></i>  <span class="text-light">Skipped<span></span>'
         document.getElementById('searchBar').value = "";
@@ -130,13 +133,16 @@ function guessSong(){
     guessNum++
     if(songs[offset].title == selectedSong){
         // Right Answer
+        setGuess("", 1)
         endOfGame(1)
     }else{
         // Wrong Answer
         if(guessNum == 6){
             // GAME OVER
+            setGuess("", 0)
             endOfGame(0)
         }else{
+            setGuess(selectedSong, -1)
             guessBox = document.getElementById("guess" + guessNum)
             guessBox.innerHTML = '<span><i class="fa-solid fa-x text-danger"></i><span class="text-light"> ' + selectedSong + '<span></span>'
             document.getElementById('searchBar').value = "";
@@ -169,4 +175,67 @@ function endOfGame(status){
         <br>
         <iframe class="fixed-bottom" name="130" id="soundcloudPlayer" allow="autoplay" width = "100%" height="200px" src="https://w.soundcloud.com/player/?url=${songs[offset].url}&amp;show_teaser=false&amp;cache=130&amp;auto_play=true&amp;buying=false&amp;sharing=false&amp;download=false&amp;show_playcount=false&amp;show_user=false&amp;"></iframe>
     `;
+}
+
+var ls = window.localStorage
+
+var guesses = ["", "", "", "", ""]
+
+function setGuess(song, status){
+    ls.setItem("guessNum", guessNum)
+
+    if(status == 0 || status == 1){
+        ls.setItem("isDone", status)
+        endOfGame(status)
+    }else if(guessNum < 6){
+        
+        if(guessNum == 1){
+            ls.setItem("isStarted", "true")
+        }
+        
+        guesses[guessNum-1] = song
+        ls.setItem("guesses", JSON.stringify(guesses))
+    }
+
+}
+
+if((ls.getItem("currentSong") != null) && (ls.getItem("currentSong") === songs[offset].title)){
+
+    if((ls.getItem("isDone") === "0") || (ls.getItem("isDone") === "1")){
+        endOfGame(parseInt(ls.getItem("isDone")))
+    }else if(ls.getItem("isStarted") == "true"){
+        guesses = JSON.parse(ls.getItem("guesses"))
+        guessNum = parseInt(ls.getItem("guessNum"))
+        updateGuesses(guesses, guessNum)
+        
+        if(guessNum < 5){
+            document.getElementById("skipButton").innerText = "Skip (+" + (songLimits[guessNum+1] - songLimits[guessNum]) + "s)"
+        }else{
+            document.getElementById("skipButton").innerText = "Give Up"
+        }
+        maxPos = songLimits[guessNum] * 1000
+        document.getElementById("progress_max").innerHTML = songLimits[guessNum]
+    }
+}else{
+    ls.setItem("currentSong", songs[offset].title)
+    ls.setItem("isDone", -1)
+    ls.setItem("guesses", JSON.stringify(guesses))
+    ls.setItem("isStarted", "false")
+    ls.setItem("guessNum", 0)
+}
+
+function updateGuesses(guesses, num){
+    
+
+    for(let i = 0; i < num; i++){
+        let song = guesses[i]
+        
+        if(guesses[i] === "Skipped"){
+            var guessBox = document.getElementById("guess" + (i+1))
+            guessBox.innerHTML = '<span><i class="fa-solid fa-minus text-secondary"></i>  <span class="text-light">Skipped<span></span>'
+        }else{
+            var guessBox = document.getElementById("guess" + (i+1))
+            guessBox.innerHTML = '<span><i class="fa-solid fa-x text-danger"></i><span class="text-light"> ' + song + '<span></span>'
+        }
+    }
 }
