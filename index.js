@@ -3,6 +3,7 @@ var currentPos = 0;
 var maxPos = 2000;
 var isDone = false;
 var isPaused = true;
+var guesses = ["", "", "", "", "", ""]
 var guessStats = [0, 0, 0, 0, 0, 0, 0]
 document.getElementById("progress_max").textContent = maxPos/1000
 
@@ -112,7 +113,7 @@ function skipGuess(){
 
     guessNum++
     if(guessNum == 6){
-        setGuess("", 0)
+        setGuess("Skipped", 0)
         // endOfGame(0)
     }else{
         setGuess("Skipped", -1)
@@ -134,14 +135,14 @@ function guessSong(){
     guessNum++
     if(songs[offset].title == selectedSong){
         // Right Answer
-        setGuess("", 1)
+        setGuess(selectedSong, 1)
         // endOfGame(1)
     }else{
         // Wrong Answer
         if(guessNum == 6){
             // GAME OVER
-            setGuess("", 0)
-            endOfGame(0)
+            setGuess(selectedSong, 0)
+            // endOfGame(0)
         }else{
             setGuess(selectedSong, -1)
             guessBox = document.getElementById("guess" + guessNum)
@@ -194,6 +195,11 @@ function endOfGame(status){
         <h2 class="text-light text-center">${message}</h2>
         <br>
         <br>
+        <h4 class="text-light text-center">Share your results with friends!</h4>
+        <div class="mx-auto text-center"><button id="shareButton" onclick="shareResults()" class="text-center text-light btn btn-success">Share!</button></div>
+        <p id="copySuccess" class="text-light text-center"></p>
+        <br>
+        <br>
         <h2 class="text-light text-center">Today's Song:</h2>
         <h2 class="text-light text-center">${songs[offset].title}</h2>
         <iframe class="fixed-bottom" name="130" id="soundcloudPlayer" allow="autoplay" width = "100%" height="200px" src="https://w.soundcloud.com/player/?url=${songs[offset].url}&amp;show_teaser=false&amp;cache=130&amp;auto_play=true&amp;buying=false&amp;sharing=false&amp;download=false&amp;show_playcount=false&amp;show_user=false&amp;"></iframe>
@@ -202,11 +208,9 @@ function endOfGame(status){
 
 var ls = window.localStorage
 
-var guesses = ["", "", "", "", ""]
-
 function setGuess(song, status){
     ls.setItem("guessNum", guessNum)
-
+    guesses[guessNum-1] = song
     if(status == 0 || status == 1){
         ls.setItem("isDone", status)
         isDone = true
@@ -216,10 +220,8 @@ function setGuess(song, status){
         if(guessNum == 1){
             ls.setItem("isStarted", "true")
         }
-        
-        guesses[guessNum-1] = song
-        ls.setItem("guesses", JSON.stringify(guesses))
     }
+    ls.setItem("guesses", JSON.stringify(guesses))
 
 }
 
@@ -228,6 +230,8 @@ if((ls.getItem("currentSong") != null) && (ls.getItem("currentSong") === songs[o
 
     if((ls.getItem("isDone") === "0") || (ls.getItem("isDone") === "1")){
         endOfGame(parseInt(ls.getItem("isDone")))
+        guesses = JSON.parse(ls.getItem("guesses"))
+        guessNum = parseInt(ls.getItem("guessNum"))
     }else if(ls.getItem("isStarted") == "true"){
         guesses = JSON.parse(ls.getItem("guesses"))
         guessNum = parseInt(ls.getItem("guessNum"))
@@ -327,4 +331,34 @@ function createChart(){
             }
         }
     });
+}
+
+
+function shareResults(){
+    console.log(guesses)
+    var copyText = "Bollydle #" + offset + "\n"
+    for(let i = 0; i < guessNum; i++){
+        if(guesses[i] === "Skipped"){
+            copyText += "⬛"
+        }
+        // else if(guesses[i] === ""){
+        //     copyText += "⬜"
+        // }
+        else if(guesses[i] === songs[offset].title){
+            copyText += "🟩"
+        }else{
+            copyText += "🟥"
+        }
+    }
+
+    if(ls.getItem("isDone") === "0"){
+        copyText += "❌\n"
+    }else if(ls.getItem("isDone") === "1"){
+        copyText += "✔️\n"
+    }
+
+    copyText += "http://bollydle.bawa.io\n"
+
+    navigator.clipboard.writeText(copyText);
+    document.getElementById("copySuccess").innerHTML = "Results Copied to Clipboard!"
 }
