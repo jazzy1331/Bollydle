@@ -1,4 +1,4 @@
-var date1 = new Date("07/24/2022");
+var date1 = new Date("07/30/2022");
 var date2 = new Date();
 var offset = Math.floor(Math.floor((date2 - date1) / (1000 * 3600 * 24))%songs.length)
 document.getElementById("soundcloudPlayer").src = "https://w.soundcloud.com/player/?url=" + songs[offset].url + "&amp;show_teaser=false&amp;cache=130"

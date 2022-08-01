@@ -32,6 +32,11 @@ widget.bind(SC.Widget.Events.PLAY_PROGRESS,
     }
 );
 
+widget.bind(SC.Widget.Events.FINISH, 
+    function finishListener(e){
+        widget.seekTo(0)
+    }
+);
 
 function playSong(){
     if(currentPos < maxPos){
@@ -173,8 +178,19 @@ function endOfGame(status){
         }
     }else if(status == 1){
         if(isDone){
-            let streak = parseInt(ls.getItem("lead-streak")) + 1
-            ls.setItem("lead-streak", streak)
+            
+            
+            let streakDateString = ls.getItem("lead-streakDate")
+
+            if((streakDateString !== null) && (Math.floor((date2 - Date.parse(streakDateString)) / (1000 * 3600 * 24)) == 1)){
+                let streak = parseInt(ls.getItem("lead-streak")) + 1
+                ls.setItem("lead-streak", streak)                
+            }else{
+                ls.setItem("lead-streak", 1)
+
+            }
+            ls.setItem("lead-streakDate", new Date(date2.getFullYear, date2.getMonth, date2.getDay))
+            
 
             if(streak > parseInt(ls.getItem("lead-maxStreak"))){
                 ls.setItem("lead-maxStreak", streak)
@@ -202,10 +218,21 @@ function endOfGame(status){
         <br>
         <h2 class="text-light text-center">Today's Song:</h2>
         <h2 class="text-light text-center">${songs[offset].title}</h2>
-        <iframe class="fixed-bottom" name="130" id="soundcloudPlayer" allow="autoplay" width = "100%" height="200px" src="https://w.soundcloud.com/player/?url=${songs[offset].url}&amp;show_teaser=false&amp;cache=130&amp;auto_play=true&amp;buying=false&amp;sharing=false&amp;download=false&amp;show_playcount=false&amp;show_user=false&amp;"></iframe>
+        <div class="col text-center" id="playPauseDiv">
+            <h1 class="fa-solid fa-play text-light" onclick="playSong()"></h1>
+        </div>
+        <br>
+        <br>
+        <p class="text-light text-center">Song hosted on <a href="${songs[offset].url}">SoundCloud!</a></p>
+        
     `;
+    
+    widget.seekTo(150000)
+    maxPos = Number.MAX_SAFE_INTEGER
+    widget.play()
 }
 
+// <iframe class="fixed-bottom" name="130" id="soundcloudPlayer" allow="autoplay" width = "100%" height="200px" src="https://w.soundcloud.com/player/?url=${songs[offset].url}&amp;show_teaser=false&amp;cache=130&amp;auto_play=true&amp;buying=false&amp;sharing=false&amp;download=false&amp;show_playcount=false&amp;show_user=false&amp;"></iframe>
 var ls = window.localStorage
 
 function setGuess(song, status){
@@ -289,6 +316,13 @@ function updateStats(){
     console.log("Updating!")
     let percent = ((parseInt(ls.getItem("lead-correct")) / parseInt(ls.getItem("lead-played"))) * 100).toFixed(1)
     document.getElementById("percentStat").innerHTML = (percent + "%")
+
+    let streakDateString = ls.getItem("lead-streakDate")
+
+    if((streakDateString !== null) && (Math.floor((date2 - Date.parse(streakDateString)) / (1000 * 3600 * 24)) > 1)){
+        ls.setItem("lead-streak", 0)
+    }
+
     document.getElementById("streakStat").innerHTML = ls.getItem("lead-streak")
     document.getElementById("maxStat").innerHTML = ls.getItem("lead-maxStreak")
     guessStats = JSON.parse(ls.getItem("lead-guessStats"))
@@ -336,7 +370,7 @@ function createChart(){
 
 function shareResults(){
     console.log(guesses)
-    var copyText = "Bollydle #" + offset + "\n"
+    var copyText = "Bollydle #" + (offset+1) + "\n"
     for(let i = 0; i < guessNum; i++){
         if(guesses[i] === "Skipped"){
             copyText += "⬛"
@@ -352,13 +386,26 @@ function shareResults(){
     }
 
     if(ls.getItem("isDone") === "0"){
-        copyText += "❌\n"
+        copyText += "❌\n\n"
     }else if(ls.getItem("isDone") === "1"){
-        copyText += "✔️\n"
+        copyText += "✔️\n\n"
     }
 
     copyText += "http://bollydle.bawa.io\n"
 
-    navigator.clipboard.writeText(copyText);
-    document.getElementById("copySuccess").innerHTML = "Results Copied to Clipboard!"
+    // if(navigator.clipboard !== null){
+    //     navigator.clipboard.writeText(copyText);
+    // }else{
+        // navigator.share({text: copyText})
+    // }
+
+    if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)){
+        // true for mobile device
+        navigator.share({text: copyText})
+      }else{
+        // false for not mobile device
+        navigator.clipboard.writeText(copyText);
+        document.getElementById("copySuccess").innerHTML = "Results Copied to Clipboard!"
+      }
+    
 }
