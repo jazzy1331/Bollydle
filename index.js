@@ -181,12 +181,12 @@ function endOfGame(status){
             
             
             let streakDateString = ls.getItem("lead-streakDate")
-
+            let streak = parseInt(ls.getItem("lead-streak")) + 1
             if((streakDateString !== null) && (Math.floor((date2 - Date.parse(streakDateString)) / (1000 * 3600 * 24)) == 1)){
-                let streak = parseInt(ls.getItem("lead-streak")) + 1
                 ls.setItem("lead-streak", streak)                
             }else{
                 ls.setItem("lead-streak", 1)
+                streak = 1
 
             }
             ls.setItem("lead-streakDate", new Date(date2.getFullYear, date2.getMonth, date2.getDay))
@@ -227,9 +227,9 @@ function endOfGame(status){
         
     `;
     
-    widget.seekTo(150000)
+    widget.seekTo(0)
     maxPos = Number.MAX_SAFE_INTEGER
-    widget.play()
+    // playSong()
 }
 
 // <iframe class="fixed-bottom" name="130" id="soundcloudPlayer" allow="autoplay" width = "100%" height="200px" src="https://w.soundcloud.com/player/?url=${songs[offset].url}&amp;show_teaser=false&amp;cache=130&amp;auto_play=true&amp;buying=false&amp;sharing=false&amp;download=false&amp;show_playcount=false&amp;show_user=false&amp;"></iframe>
