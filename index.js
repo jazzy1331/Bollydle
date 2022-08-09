@@ -1,13 +1,23 @@
+// Declarations
 var widget = SC.Widget(document.getElementById("soundcloudPlayer"));
+
+var ls = window.localStorage
+
 var currentPos = 0;
 var maxPos = 2000;
 var isDone = false;
 var isPaused = true;
 var guesses = ["", "", "", "", "", ""]
 var guessStats = [0, 0, 0, 0, 0, 0, 0]
-document.getElementById("progress_max").textContent = maxPos/1000
+var searchNum = 0;
+var selectedSong = ""
+var guessNum = 0;
+var songLimits = [2, 4, 7, 12, 17, 25]
+var progressOffsets = [64, 32, 18, 10, 8, 6]
 
 
+
+// Event Listeners
 widget.bind(SC.Widget.Events.PLAY_PROGRESS, 
     function progressListener(e){
         console.log(e.currentPosition);
@@ -38,30 +48,6 @@ widget.bind(SC.Widget.Events.FINISH,
     }
 );
 
-function playSong(){
-    if(currentPos < maxPos){
-        widget.play()
-        isDone = false
-        isPaused = false
-    }
-    
-    document.getElementById("playPauseDiv").innerHTML = '<h1 class="fa-solid fa-pause text-light" onclick="pauseSong()"></h1>'
-}
-
-
-function pauseSong(){
-    widget.pause()
-    isPaused = true
-    document.getElementById("playPauseDiv").innerHTML = '<h1 class="fa-solid fa-play text-light" onclick="playSong()"></h1>'
-}
-
-
-var searchNum = 0;
-var selectedSong = ""
-var guessNum = 0;
-var songLimits = [2, 4, 7, 12, 17, 25]
-var progressOffsets = [64, 32, 18, 10, 8, 6]
-
 const searchBar = document.getElementById('searchBar');
 searchBar.addEventListener('input', (e) => {
     const searchString = e.target.value.toLowerCase();
@@ -78,6 +64,26 @@ searchBar.addEventListener('input', (e) => {
         displaySongs(filteredSongs.slice(0,5));
     }
 });
+
+// Song Playback Functions
+
+function playSong(){
+    if(currentPos < maxPos){
+        widget.play()
+        isDone = false
+        isPaused = false
+    }
+    
+    document.getElementById("playPauseDiv").innerHTML = '<h1 class="fa-solid fa-pause text-light" onclick="pauseSong()"></h1>'
+}
+
+function pauseSong(){
+    widget.pause()
+    isPaused = true
+    document.getElementById("playPauseDiv").innerHTML = '<h1 class="fa-solid fa-play text-light" onclick="playSong()"></h1>'
+}
+
+// Search Box Functions
 
 function searchBoxClear(){
     document.getElementById('searchBar').value = "";
@@ -114,12 +120,13 @@ function songSelection(song){
     document.getElementById("submitButton").disabled = false
 }
 
+// Turn Based Functions
+
 function skipGuess(){
 
     guessNum++
     if(guessNum == 6){
         setGuess("Skipped", 0)
-        // endOfGame(0)
     }else{
         setGuess("Skipped", -1)
         guessBox = document.getElementById("guess" + guessNum)
@@ -141,13 +148,11 @@ function guessSong(){
     if(songs[offset].title == selectedSong){
         // Right Answer
         setGuess(selectedSong, 1)
-        // endOfGame(1)
     }else{
         // Wrong Answer
         if(guessNum == 6){
             // GAME OVER
             setGuess(selectedSong, 0)
-            // endOfGame(0)
         }else{
             setGuess(selectedSong, -1)
             guessBox = document.getElementById("guess" + guessNum)
@@ -164,12 +169,14 @@ function guessSong(){
         }
     }
 }
-// 0 -> Lost 1-> Win
+
+// 0 -> Lost; 1-> Win
 function endOfGame(status){
     var message = ""
     if(isDone){
         ls.setItem("lead-played", parseInt(ls.getItem("lead-played")) + 1)
     }
+
     if(status == 0){
         message = "Ah, so close! Try again tomorrow!"
         if(isDone){
@@ -178,8 +185,6 @@ function endOfGame(status){
         }
     }else if(status == 1){
         if(isDone){
-            
-            
             let streakDateString = ls.getItem("lead-streakDate")
             let streak = parseInt(ls.getItem("lead-streak")) + 1
             if((streakDateString !== null) && (Math.floor((date2 - Date.parse(streakDateString)) / (1000 * 3600 * 24)) == 1)){
@@ -187,11 +192,9 @@ function endOfGame(status){
             }else{
                 ls.setItem("lead-streak", 1)
                 streak = 1
-
             }
             ls.setItem("lead-streakDate", new Date(date2.getFullYear, date2.getMonth, date2.getDay))
             
-
             if(streak > parseInt(ls.getItem("lead-maxStreak"))){
                 ls.setItem("lead-maxStreak", streak)
             }
@@ -206,6 +209,7 @@ function endOfGame(status){
     if(isDone){
         ls.setItem("lead-guessStats", JSON.stringify(guessStats))
     }
+
     updateStats()
     document.getElementById("top").innerHTML = `
         <h2 class="text-light text-center">${message}</h2>
@@ -229,11 +233,9 @@ function endOfGame(status){
     
     widget.seekTo(0)
     maxPos = Number.MAX_SAFE_INTEGER
-    // playSong()
 }
 
-// <iframe class="fixed-bottom" name="130" id="soundcloudPlayer" allow="autoplay" width = "100%" height="200px" src="https://w.soundcloud.com/player/?url=${songs[offset].url}&amp;show_teaser=false&amp;cache=130&amp;auto_play=true&amp;buying=false&amp;sharing=false&amp;download=false&amp;show_playcount=false&amp;show_user=false&amp;"></iframe>
-var ls = window.localStorage
+// Local Storage Functions
 
 function setGuess(song, status){
     ls.setItem("guessNum", guessNum)
@@ -249,43 +251,11 @@ function setGuess(song, status){
         }
     }
     ls.setItem("guesses", JSON.stringify(guesses))
-
-}
-
-// Local Storage setup upon page load
-if((ls.getItem("currentSong") != null) && (ls.getItem("currentSong") === songs[offset].title)){
-
-    if((ls.getItem("isDone") === "0") || (ls.getItem("isDone") === "1")){
-        endOfGame(parseInt(ls.getItem("isDone")))
-        guesses = JSON.parse(ls.getItem("guesses"))
-        guessNum = parseInt(ls.getItem("guessNum"))
-    }else if(ls.getItem("isStarted") == "true"){
-        guesses = JSON.parse(ls.getItem("guesses"))
-        guessNum = parseInt(ls.getItem("guessNum"))
-        updateGuesses(guesses, guessNum)
-        
-        if(guessNum < 5){
-            document.getElementById("skipButton").innerText = "Skip (+" + (songLimits[guessNum+1] - songLimits[guessNum]) + "s)"
-        }else{
-            document.getElementById("skipButton").innerText = "Give Up"
-        }
-        maxPos = songLimits[guessNum] * 1000
-        document.getElementById("progress_max").innerHTML = songLimits[guessNum]
-    }
-}else{
-    ls.setItem("currentSong", songs[offset].title)
-    ls.setItem("isDone", -1)
-    ls.setItem("guesses", JSON.stringify(guesses))
-    ls.setItem("isStarted", "false")
-    ls.setItem("guessNum", 0)
 }
 
 function updateGuesses(guesses, num){
-    
-
     for(let i = 0; i < num; i++){
         let song = guesses[i]
-        
         if(guesses[i] === "Skipped"){
             var guessBox = document.getElementById("guess" + (i+1))
             guessBox.innerHTML = '<span><i class="fa-solid fa-minus text-secondary"></i>  <span class="text-light">Skipped<span></span>'
@@ -296,20 +266,7 @@ function updateGuesses(guesses, num){
     }
 }
 
-// Leaderboard Setup upon page load
-// console.log(ls.getItem("lead-played"))
-if(ls.getItem("lead-played") === null){
-    console.log(ls.getItem("lead-played"))
-    ls.setItem("lead-played", 0)
-    ls.setItem("lead-streak", 0)
-    ls.setItem("lead-maxStreak", 0)
-    ls.setItem("lead-correct", 0)
-    ls.setItem("lead-guessStats", JSON.stringify(guessStats))
-}else{
-    updateStats()
-}
-createChart()
-
+// Statistics Functions
 
 function updateStats(){
     document.getElementById("playedStat").innerHTML= ls.getItem("lead-played")
@@ -374,11 +331,7 @@ function shareResults(){
     for(let i = 0; i < guessNum; i++){
         if(guesses[i] === "Skipped"){
             copyText += "⬛"
-        }
-        // else if(guesses[i] === ""){
-        //     copyText += "⬜"
-        // }
-        else if(guesses[i] === songs[offset].title){
+        }else if(guesses[i] === songs[offset].title){
             copyText += "🟩"
         }else{
             copyText += "🟥"
@@ -391,13 +344,7 @@ function shareResults(){
         copyText += "✔️\n\n"
     }
 
-    copyText += "http://bollydle.bawa.io\n"
-
-    // if(navigator.clipboard !== null){
-    //     navigator.clipboard.writeText(copyText);
-    // }else{
-        // navigator.share({text: copyText})
-    // }
+    copyText += "https://bollydle.bawa.io\n"
 
     if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)){
         // true for mobile device
@@ -409,3 +356,48 @@ function shareResults(){
       }
     
 }
+
+// Initial Code
+
+document.getElementById("progress_max").textContent = maxPos/1000
+
+// Local Storage setup upon page load
+if((ls.getItem("currentSong") != null) && (ls.getItem("currentSong") === songs[offset].title)){
+
+    if((ls.getItem("isDone") === "0") || (ls.getItem("isDone") === "1")){
+        endOfGame(parseInt(ls.getItem("isDone")))
+        guesses = JSON.parse(ls.getItem("guesses"))
+        guessNum = parseInt(ls.getItem("guessNum"))
+    }else if(ls.getItem("isStarted") == "true"){
+        guesses = JSON.parse(ls.getItem("guesses"))
+        guessNum = parseInt(ls.getItem("guessNum"))
+        updateGuesses(guesses, guessNum)
+        
+        if(guessNum < 5){
+            document.getElementById("skipButton").innerText = "Skip (+" + (songLimits[guessNum+1] - songLimits[guessNum]) + "s)"
+        }else{
+            document.getElementById("skipButton").innerText = "Give Up"
+        }
+        maxPos = songLimits[guessNum] * 1000
+        document.getElementById("progress_max").innerHTML = songLimits[guessNum]
+    }
+}else{
+    ls.setItem("currentSong", songs[offset].title)
+    ls.setItem("isDone", -1)
+    ls.setItem("guesses", JSON.stringify(guesses))
+    ls.setItem("isStarted", "false")
+    ls.setItem("guessNum", 0)
+}
+
+// Leaderboard setup upon page load
+if(ls.getItem("lead-played") === null){
+    console.log(ls.getItem("lead-played"))
+    ls.setItem("lead-played", 0)
+    ls.setItem("lead-streak", 0)
+    ls.setItem("lead-maxStreak", 0)
+    ls.setItem("lead-correct", 0)
+    ls.setItem("lead-guessStats", JSON.stringify(guessStats))
+}else{
+    updateStats()
+}
+createChart()
