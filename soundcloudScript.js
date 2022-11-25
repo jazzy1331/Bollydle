@@ -1,6 +1,12 @@
-var date1 = new Date("07/30/2022");
-var date2 = new Date();
+// var date1 = new Date("07/30/2022");
+var date1 = new Date("08/09/2022");
+let dateTest = new Date();
+var date2 = new Date("\"" + (dateTest.getMonth()+1) + "/" + (dateTest.getDate()+1) + "/" + dateTest.getFullYear() + "\"");
 var offset = Math.floor(Math.floor((date2 - date1) / (1000 * 3600 * 24))%songs.length)
+console.log(offset)
+console.log(date2)
+console.log(date1)
+console.log(dateTest.getDate())
 document.getElementById("soundcloudPlayer").src = "https://w.soundcloud.com/player/?url=" + songs[offset].url + "&amp;show_teaser=false&amp;cache=130"
 
 
