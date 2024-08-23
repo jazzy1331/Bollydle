@@ -2,7 +2,8 @@
 var date1 = new Date("08/09/2022");
 let dateTest = new Date();
 var date2 = new Date("\"" + (dateTest.getMonth()+1) + "/" + (dateTest.getDate()+1) + "/" + dateTest.getFullYear() + "\"");
-var offset = Math.floor(Math.floor((date2 - date1) / (1000 * 3600 * 24))%songs.length)
+// var offset = Math.floor(Math.floor((date2 - date1) / (1000 * 3600 * 24))%songs.length)
+var offset = 2
 console.log(offset)
 console.log(date2)
 console.log(date1)
