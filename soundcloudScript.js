@@ -1,13 +1,35 @@
-// var date1 = new Date("07/30/2022");
-var date1 = new Date("08/09/2022");
-let dateTest = new Date();
-var date2 = new Date("\"" + (dateTest.getMonth()+1) + "/" + (dateTest.getDate()+1) + "/" + dateTest.getFullYear() + "\"");
-var offset = Math.floor(Math.floor((date2 - date1) / (1000 * 3600 * 24))%songs.length)
+var startDate = new Date("08/09/2022");
+var todayDate = new Date();
+var tomorrowDate = new Date(todayDate);
+tomorrowDate.setDate(todayDate.getDate() + 1);
+tomorrowDate.setHours(0, 0, 0, 0);
+
+let dateTest = new Date(todayDate);
+dateTest.setHours(0,0,0,0);
+
+var offset = Math.floor(Math.floor((dateTest - startDate) / (1000 * 3600 * 24))%songs.length)
+console.log("Offset: " + offset)
+
+console.log("START" + startDate)
+console.log(todayDate)
+console.log(tomorrowDate)
+console.log(todayDate.getTime())
+
+// var preDate = new Date("03/10/2024");
+// var postDate = new Date(preDate);
+// postDate.setDate(preDate.getDate() + 1);
+// console.log("PRE" + preDate)
+// console.log(postDate)
+
+
 console.log(offset)
-console.log(date2)
-console.log(date1)
+console.log(tomorrowDate)
+console.log(startDate)
 console.log(dateTest.getDate())
 document.getElementById("soundcloudPlayer").src = "https://w.soundcloud.com/player/?url=" + songs[offset].url + "&amp;show_teaser=false&amp;cache=130"
+
+
+
 
 
 var SC = "object" == typeof SC ? SC : {};
