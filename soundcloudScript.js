@@ -21,7 +21,6 @@ console.log(todayDate.getTime())
 // console.log("PRE" + preDate)
 // console.log(postDate)
 
-
 console.log(offset)
 console.log(tomorrowDate)
 console.log(startDate)
