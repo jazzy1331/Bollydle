@@ -187,18 +187,18 @@ function endOfGame(status){
         if(isDone){
             let streakDateString = ls.getItem("lead-streakDate")
             let streak = parseInt(ls.getItem("lead-streak")) + 1
-            // console.log(Math.floor((date2 - Date.parse(streakDateString)) / (1000 * 3600 * 24)))
-            console.log((date2 - Date.parse(streakDateString)) / (1000 * 3600 * 24))
-            console.log(date2)
-            console.log(Date.parse(streakDateString))
-            if((streakDateString !== null) && (Math.floor((date2 - Date.parse(streakDateString)) / (1000 * 3600 * 24)) == 1)){
+            // console.log(Math.floor((tomorrowDate - Date.parse(streakDateString)) / (1000 * 3600 * 24)))
+            // console.log((tomorrowDate - Date.parse(streakDateString)) / (1000 * 3600 * 24))
+            // console.log(tomorrowDate)
+            // console.log(Date.parse(streakDateString))
+            if((streakDateString !== null) && (Math.floor((tomorrowDate - Date.parse(streakDateString)) / (1000 * 3600 * 24)) == 1)){
                 ls.setItem("lead-streak", streak)                
             }else{
                 ls.setItem("lead-streak", 1)
                 streak = 1
             }
-            // ls.setItem("lead-streakDate", new Date(date2.getFullYear, date2.getMonth, date2.getDay))
-            ls.setItem("lead-streakDate", date2)
+            // ls.setItem("lead-streakDate", new Date(tomorrowDate.getFullYear, tomorrowDate.getMonth, tomorrowDate.getDay))
+            ls.setItem("lead-streakDate", tomorrowDate)
             
             if(streak > parseInt(ls.getItem("lead-maxStreak"))){
                 ls.setItem("lead-maxStreak", streak)
@@ -281,7 +281,7 @@ function updateStats(){
 
     let streakDateString = ls.getItem("lead-streakDate")
 
-    if((streakDateString !== null) && (Math.floor((date2 - Date.parse(streakDateString)) / (1000 * 3600 * 24)) > 1)){
+    if((streakDateString !== null) && (Math.floor((tomorrowDate - Date.parse(streakDateString)) / (1000 * 3600 * 24)) > 1)){
         ls.setItem("lead-streak", 0)
     }
 
