@@ -7,7 +7,8 @@ tomorrowDate.setHours(0, 0, 0, 0);
 let dateTest = new Date(todayDate);
 dateTest.setHours(0,0,0,0);
 
-var offset = Math.floor(Math.floor((dateTest - startDate) / (1000 * 3600 * 24))%songs.length)
+// var offset = Math.floor(Math.floor((dateTest - startDate) / (1000 * 3600 * 24))%songs.length)
+var offset = 0;
 console.log("Offset: " + offset)
 
 console.log("START" + startDate)

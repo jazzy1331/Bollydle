@@ -1,5 +1,9 @@
 var songs = [
     {
+        "title":"Kesariya (Brahmāstra: Part One - Shiva) - Arijit Singh, Pritam Chakraborty, Amitabh Bhattacharya",
+        "url":"https://soundcloud.com/pritammusic/kesariya-audio-teaser-from"
+    },
+    {
         "title":"Saadi Galli Aaja (Nautanki Saala!) - Ayushmann Khurrana, Neeti Mohan",
         "url":"https://soundcloud.com/impure-spirit/saadi-gali-aaja-ayushmann"
     },
